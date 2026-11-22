@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cubo Timer + Algoritmos CFOP</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1d22;--mu:#6b7280;--ac:#2563eb;--bd:#d9dce2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--card:#1e2128;--tx:#eceef2;--mu:#9aa1ae;--ac:#5b8def;--bd:#323743;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14161a;--card:#1e2128;--tx:#eceef2;--mu:#9aa1ae;--ac:#5b8def;--bd:#323743;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--bd)}
+button{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;cursor:pointer}
+button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:1000px;margin:0 auto;padding:14px}
+.hide{display:none}
+#scr{font-family:ui-monospace,Consolas,monospace;font-size:clamp(16px,3.4vw,26px);text-align:center;padding:14px;line-height:1.5}
+#time{font-family:ui-monospace,Consolas,monospace;font-size:clamp(64px,18vw,150px);text-align:center;padding:40px 0;user-select:none;touch-action:manipulation;cursor:pointer;border-radius:16px}
+#time.red{color:#dc2626}#time.green{color:#16a34a}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:10px 0}
+.stats div,.box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 12px}
+.stats b{display:block;font-size:20px;font-family:ui-monospace,monospace}
+.stats span{color:var(--mu);font-size:12px}
+.tl{max-height:300px;overflow:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-family:ui-monospace,monospace}
+td,th{padding:5px 8px;border-bottom:1px solid var(--bd);text-align:left}
+td button{padding:1px 7px;margin-left:3px}
+.sub{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+input[type=search]{width:100%;padding:8px 12px;margin-bottom:10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px}
+.alg{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;cursor:pointer}
+.alg h4{margin:0 0 4px;font-size:14px}.alg code{font-size:14px;word-break:break-word}
+.alg small{color:var(--mu);display:block;margin-top:4px}
+h3{margin:18px 0 8px;border-left:4px solid var(--ac);padding-left:10px}
+header{align-items:center;position:sticky;top:0;z-index:5}
+.brand{font-size:18px;margin-right:8px}
+button{transition:.15s}button:hover{border-color:var(--ac)}
+#time{background:var(--card);border:1px solid var(--bd);box-shadow:0 6px 24px #0002;margin:12px 0;padding:36px 0}
+#time.green{box-shadow:0 0 0 3px #16a34a99,0 6px 30px #16a34a55}#time.red{box-shadow:0 0 0 3px #dc262688}
+#pv{display:flex;justify-content:center;margin-top:8px}#pv svg{height:84px;width:auto}
+.stats div{box-shadow:0 2px 8px #0001;text-align:center}
+.alg{display:flex;gap:10px;align-items:center;transition:.15s;box-shadow:0 2px 8px #0001}.alg:hover{transform:translateY(-2px);border-color:var(--ac)}
+.alg svg{width:84px;flex:none}.in{flex:1;min-width:0}
+.tr{display:flex;gap:16px;align-items:center;margin-bottom:12px;border-color:var(--ac)}.tr svg{width:130px;flex:none}
+/* ===== Estilo elegante tipo iOS ===== */
+:root{--bg:#f2f2f7;--card:#fff;--tx:#1c1c1e;--mu:#8e8e93;--ac:#007aff;--bd:#e5e5ea;--fill:#7878801f;--sh:0 1px 2px #0000000a,0 8px 30px #00000012;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--card:#1c1c1e;--tx:#f2f2f7;--mu:#8e8e93;--ac:#0a84ff;--bd:#2c2c2e;--sh:0 1px 2px #0006,0 8px 30px #0008}}
+:root[data-theme="dark"]{--bg:#000;--card:#1c1c1e;--tx:#f2f2f7;--mu:#8e8e93;--ac:#0a84ff;--bd:#2c2c2e;--sh:0 1px 2px #0006,0 8px 30px #0008}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+main{max-width:1040px;padding:20px 16px 48px}
+header{background:color-mix(in srgb,var(--card) 72%,transparent);-webkit-backdrop-filter:saturate(180%) blur(22px);backdrop-filter:saturate(180%) blur(22px);border-bottom:.5px solid var(--bd);padding:10px 16px;gap:6px}
+.brand{font-weight:700;font-size:17px;letter-spacing:-.03em;margin-right:12px}
+button{border:none;background:var(--fill);color:var(--tx);border-radius:999px;padding:8px 16px;font-weight:500;font-size:14px;letter-spacing:-.01em}
+button:hover{background:var(--fill);filter:brightness(.96)}button:active{transform:scale(.96)}
+button.on,#rnd{background:var(--ac);color:#fff}
+#rnd{padding:10px 20px;box-shadow:0 4px 14px color-mix(in srgb,var(--ac) 40%,transparent)}
+#scr{font-family:var(--mono);font-size:clamp(15px,2.8vw,22px);font-weight:500;color:var(--tx);padding:10px 12px;line-height:1.7;letter-spacing:.02em}
+#pv svg{filter:drop-shadow(0 4px 10px #0003)}
+#time{font-weight:200;font-variant-numeric:tabular-nums;letter-spacing:-.05em;border:none;border-radius:32px;box-shadow:var(--sh);margin:16px 0;padding:44px 0;transition:color .15s,box-shadow .25s}
+#time.red{color:#ff3b30;box-shadow:0 0 0 2px #ff3b3055,var(--sh)}
+#time.green{color:#34c759;box-shadow:0 0 0 2px #34c75966,0 10px 50px #34c75933}
+p{color:var(--mu);font-size:13px}
+.stats{gap:10px}
+.stats div,.box,.alg{border:none;border-radius:20px;box-shadow:var(--sh)}
+.stats div{padding:14px 10px}
+.stats b{font-weight:600;font-size:22px;letter-spacing:-.03em;margin-top:2px}
+.stats span{text-transform:uppercase;letter-spacing:.07em;font-size:10.5px;font-weight:600}
+.box{padding:12px 16px}
+.tl{max-height:320px;border-radius:20px}
+th{color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;position:sticky;top:0;background:var(--card)}
+td,th{border-bottom:.5px solid var(--bd);padding:8px 10px}tr:last-child td{border-bottom:none}
+td button{padding:2px 9px;font-size:12px;margin-left:4px}
+.sub{overflow-x:auto;padding:4px;background:var(--fill);border-radius:999px;display:inline-flex;max-width:100%;gap:2px}
+.sub button{background:transparent;white-space:nowrap}
+.sub button.on{background:var(--card);color:var(--tx);box-shadow:0 2px 8px #0002}
+input[type=search]{border:none;background:var(--fill);border-radius:14px;padding:12px 16px;font-size:16px;outline:none}
+input[type=search]:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 35%,transparent)}
+input[type=checkbox]{accent-color:var(--ac)}
+h3{border:none;padding:0;margin:28px 4px 12px;font-size:22px;font-weight:700;letter-spacing:-.03em}
+.grid{gap:12px}
+.alg{padding:12px;gap:14px;animation:in .35s ease both}
+.alg:hover{transform:translateY(-3px);box-shadow:0 2px 4px #0000000d,0 14px 36px #0000001f}
+.alg svg{width:86px;padding:6px;background:var(--bg);border-radius:14px}
+.alg h4{font-size:15px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px}
+.alg code{font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--tx)}
+.alg small{color:var(--mu);font-size:11.5px;margin-top:6px}
+.tr{border-radius:24px;padding:16px}.tr code{font-family:var(--mono);font-size:13px}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--fill);border-radius:8px}
+/* ===== Estética violeta nocturna ===== */
+:root:root:root{--bg:#0d0a24;--card:rgba(30,25,72,.62);--tx:#ece9ff;--mu:#9a95c7;--ac:#8b7bff;--bd:rgba(160,140,255,.16);--fill:#ffffff14;--sh:0 12px 40px #05031acc,inset 0 1px 0 #ffffff0d;color-scheme:dark}
+#th{display:none}
+body{background:radial-gradient(900px 500px at 85% -10%,#3b2a8f55,transparent 60%),radial-gradient(700px 500px at -10% 40%,#1f3a8a44,transparent 60%),#0b0820;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c5cff' stop-opacity='.35'/%3E%3Cstop offset='1' stop-color='%23401d9c' stop-opacity='.05'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 520C180 430 330 640 560 560S900 380 1200 470V700H0Z' fill='url(%23g)'/%3E%3Cpath d='M700 0C760 120 960 90 1010 210S1100 330 1200 300V0Z' fill='url(%23g)'/%3E%3C/svg%3E") center/cover no-repeat}
+header{background:rgba(14,10,40,.6);border-bottom:1px solid var(--bd)}
+.brand{background:linear-gradient(90deg,#c9bfff,#8fb4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+button:hover{background:#ffffff1f}
+button.on,#rnd{background:linear-gradient(135deg,#8b7bff,#5b8cff);color:#fff;box-shadow:0 6px 20px #6d57ff55}
+.sub button.on{background:#ffffff1f;box-shadow:inset 0 0 0 1px #ffffff22;color:#fff}
+.stats div,.box,.alg,#time{background:var(--card);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid var(--bd)}
+#time{color:#f1eeff;text-shadow:0 0 40px #8b7bff66}
+#time.red{color:#ff7a9c;box-shadow:0 0 0 2px #ff7a9c44,var(--sh)}
+#time.green{color:#7ee2a8;box-shadow:0 0 0 2px #7ee2a855,0 10px 60px #7ee2a822}
+#scr{color:#cfc8ff}
+.stats b{color:#fff}
+th{background:#1a1640}
+tr:hover td{background:#ffffff08}
+.alg:hover{border-color:#8b7bff88;box-shadow:0 14px 44px #6d57ff33}
+.alg svg{background:#080620aa;border:1px solid var(--bd)}
+.tr{border-color:#8b7bff66}
+input[type=search]{background:#ffffff10;border:1px solid var(--bd);color:var(--tx)}
+input[type=search]::placeholder{color:var(--mu)}
+.alg h4{color:#fff}
+</style></head><body>
+<header>
+<b class="brand">🧊 KoldTimer</b><button id="t1" class="on">⏱ Cronómetro</button><button id="t2">📚 Algoritmos</button>
+<span style="flex:1"></span><button id="th">☀/🌙</button>
+</header>
+<main>
+<section id="p1">
+<div id="scr"></div><div id="pv"></div>
+<div style="text-align:center"><button id="nx">Nuevo scramble</button> <label><input type="checkbox" id="ins"> Inspección 15 s</label></div>
+<div id="time">0.00</div>
+<p style="text-align:center;color:var(--mu);margin:0">Mantén ESPACIO (o toca el tiempo) hasta ver verde, suelta para iniciar, cualquier tecla/toque para parar.</p>
+<div class="stats" id="st"></div><div class="box" id="gr"></div>
+<div class="box tl"><table id="tb"></table></div>
+<p><button id="rs">Borrar sesión</button></p>
+</section>
+<section id="p2" class="hide">
+<div class="sub" id="sub"></div>
+<button id="rnd" style="margin-bottom:10px">🎲 Entrenar caso aleatorio</button><div id="tr"></div><input type="search" id="q" placeholder="Buscar caso o algoritmo…">
+<div id="al"></div>
+<p style="color:var(--mu);font-size:13px">Toca un algoritmo para copiarlo. Hay varias variantes por caso; estas son de las más usadas.</p>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=ms=>{if(ms==null)return"-";if(ms===Infinity)return"DNF";const s=ms/1000;return s>=60?Math.floor(s/60)+":"+(s%60).toFixed(2).padStart(5,"0"):s.toFixed(2)};
+// ---------- Scramble ----------
+function scramble(){const F=["R","L","U","D","F","B"],ax=f=>"RL".includes(f)?0:"UD".includes(f)?1:2;let r=[],l=-1,l2=-1;
+while(r.length<20){const i=Math.random()*6|0,a=ax(F[i]);if(a===l||(a===l2&&l!==-1&&ax(F[l])!==a&&false))continue;if(a===l)continue;
+if(r.length>1&&ax(r[r.length-2][0])===a&&ax(r[r.length-1][0])===a)continue;r.push(F[i]+["","'","2"][Math.random()*3|0]);l=a}
+return r.join(" ")}
+let sc="";const newSc=()=>{sc=scramble();$("#scr").textContent=sc;$("#pv").innerHTML=net(apply(solved(),sc))};
+// ---------- Solves ----------
+let solves=[];try{solves=JSON.parse(localStorage.getItem("cubo_solves")||"[]")}catch(e){}
+const save=()=>{try{localStorage.setItem("cubo_solves",JSON.stringify(solves))}catch(e){}};
+const val=s=>s.dnf?Infinity:s.t+(s.p2?2000:0);
+function avg(n,end){if(end<n)return null;const a=solves.slice(end-n,end).map(val).sort((x,y)=>x-y);
+const m=a.slice(1,-1);if(m.includes(Infinity))return Infinity;return m.reduce((x,y)=>x+y,0)/m.length}
+function render(){graph();const v=solves.map(val),ok=v.filter(x=>x!==Infinity);
+const best=ok.length?Math.min(...ok):null,mean=ok.length?ok.reduce((a,b)=>a+b,0)/ok.length:null;
+let b5=null,b12=null;for(let i=5;i<=solves.length;i++){const x=avg(5,i);if(x!=null&&(b5==null||x<b5))b5=x}
+for(let i=12;i<=solves.length;i++){const x=avg(12,i);if(x!=null&&(b12==null||x<b12))b12=x}
+const n=solves.length;
+$("#st").innerHTML=[["Mejor",best],["Media",mean],["Ao5",avg(5,n)],["Mejor Ao5",b5],["Ao12",avg(12,n)],["Mejor Ao12",b12]].map(([k,x])=>`<div><span>${k}</span><b>${fmt(x)}</b></div>`).join("")+`<div><span>Solves</span><b>${n}</b></div>`;
+$("#tb").innerHTML="<tr><th>#</th><th>Tiempo</th><th>Ao5</th><th>Ao12</th><th></th></tr>"+solves.map((s,i)=>i).reverse().map(i=>{const s=solves[i];
+return`<tr><td>${i+1}</td><td>${s.dnf?"DNF":fmt(s.t+(s.p2?2000:0))+(s.p2?"+":"")}</td><td>${fmt(avg(5,i+1))}</td><td>${fmt(avg(12,i+1))}</td><td><button data-a="p" data-i="${i}">+2</button><button data-a="d" data-i="${i}">DNF</button><button data-a="x" data-i="${i}">✕</button></td></tr>`}).join("")}
+$("#tb").onclick=e=>{const b=e.target.closest("button");if(!b)return;const s=solves[+b.dataset.i];
+if(b.dataset.a==="p"){s.p2=!s.p2;s.dnf=false}else if(b.dataset.a==="d"){s.dnf=!s.dnf}else solves.splice(+b.dataset.i,1);save();render()};
+$("#rs").onclick=()=>{if(confirm("¿Borrar todos los tiempos?")){solves=[];save();render()}};
+$("#nx").onclick=newSc;
+// ---------- Timer ----------
+let st="idle",t0=0,raf,hold,insT,insEnd=0;const T=$("#time");
+function tick(){T.textContent=fmt(performance.now()-t0);raf=requestAnimationFrame(tick)}
+function press(){if(st==="run"){stop();return}if(st==="idle"||st==="insp"){T.className="red";hold=performance.now();st=st==="insp"?"inspHold":"hold";
+setTimeout(()=>{if(st==="hold"||st==="inspHold")T.className="green"},300)}}
+function release(){if(st==="hold"||st==="inspHold"){const ready=performance.now()-hold>=300;
+if(ready){clearInterval(insT);T.className="";start()}else{T.className="";st=st==="inspHold"?"insp":"idle";return}}
+else if(st==="idle"&&$("#ins").checked&&false){}}
+function start(){st="run";t0=performance.now();raf=requestAnimationFrame(tick)}
+function stop(){cancelAnimationFrame(raf);const t=performance.now()-t0;st="done";T.textContent=fmt(t);
+solves.push({t:Math.round(t/10)*10,p2:false,dnf:false,sc});save();render();newSc();setTimeout(()=>st="idle",300)}
+function beginInsp(){st="insp";insEnd=performance.now()+15000;insT=setInterval(()=>{const r=Math.ceil((insEnd-performance.now())/1000);T.textContent=r>0?r:(r>-2?"+2":"DNF")},100);T.textContent=15}
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.code==="Space"){e.preventDefault();if(e.repeat)return;
+if(st==="idle"&&$("#ins").checked){beginInsp();return}press()}else if(st==="run")stop()});
+addEventListener("keyup",e=>{if(e.code==="Space")release()});
+T.addEventListener("touchstart",e=>{e.preventDefault();if(st==="idle"&&$("#ins").checked){beginInsp();return}press()},{passive:false});
+T.addEventListener("touchend",e=>{e.preventDefault();release()},{passive:false});
+// ---------- Algoritmos ----------
+const D={
+"Reducido (2-look)":{
+"2-Look OLL · Cruz":["Punto|F R U R' U' F' f R U R' U' f'","L (forma de L)|F U R U' R' F'","Línea|F R U R' U' F'"],
+"2-Look OLL · Esquinas":["Sune|R U R' U R U2 R'","Anti-Sune|R U2 R' U' R U' R'","H|F R U R' U' R U R' U' R U R' U' F'","Pi|R U2 R2 U' R2 U' R2 U2 R","U|R2 D R' U2 R D' R' U2 R'","T|r U R' U' r' F R F'","L|F R' F' r U R U' r'"],
+"2-Look PLL · Esquinas":["A (Aa)|x R' U R' D2 R U' R' D2 R2","Diagonal (Y)|F R U' R' U' R U R' F' R U R' U' R' F R F'"],
+"2-Look PLL · Aristas":["Ua|R U' R U R U R U' R' U' R2","Ub|R2 U R U R' U' R' U' R' U R'","H|M2 U M2 U2 M2 U M2","Z|M' U M2 U M2 U M' U2 M2"]},
+"F2L":{"F2L (41 casos)":[
+"1|U R U' R'","2|y' U' R' U R","3|y' U R' U' R","4|U' R U R'",
+"5|U' R U' R' U2 R U' R'","6|U R' U2 R U2 R' U R","7|U' R U R' U R U R'","8|U R U' R' U R U' R'",
+"9|U R U' R' U' F' U' F","10|U' R U R' U F' U' F","11|U2 R U R' U R U' R'","12|R U' R' U2 F' U' F",
+"13|U' R U' R' U R U R'","14|U R U R' U' R U R'","15|R' U' R U2 R' U R","16|R U R' U2 R U' R'",
+"17|R U2 R' U' R U R'","18|R U R' U' R U R'","19|R' U2 R2 U R2 U R","20|R U2 R' U R U' R'",
+"21|R U' R' U R U' R'","22|R U R' U' R U' R' U2 R U R'","23|R2 U2 F R2 F' U2 R' U R'","24|R U' R' U' R U R'",
+"25|R' F' R U R U' R' F","26|R U' R' U R U2 R' U R U' R'","27|R U R' U' R U R' U' R U R'","28|R U' R' U R U2 R' U R U' R'",
+"29|R U' R' U R U' R' U2 R U' R'","30|R U R' U' R U' R'","31|R U' R' U' R U' R' U R U' R'","32|R U2 R' U' R U R'",
+"33|R' U R U2 R' U R","34|R U' R' U2 R U R'","35|R U R' U2 R U R'","36|R U' R2 U R2 U R","37|R U R' U' R U R'",
+"38|R U R' U' R U' R'","39|R U' R' U R U R'","40|R U R' U' R U' R' U R U R'","41|R U' R' U' R U' R' U' R U' R'"]},
+"OLL (57)":{"OLL completo":[
+"1|R U2 R2 F R F' U2 R' F R F'","2|r U r' U2 r U2 R' U2 R U' r'","3|r' R2 U R' U r U2 r' U M'","4|M U' r U2 r' U' R U' R' M'",
+"5|l' U2 L U L' U l","6|r U2 R' U' R U' r'","7|r U R' U R U2 r'","8|l' U' L U' L' U2 l",
+"9|R U R' U' R' F R2 U R' U' F'","10|R U R' U R' F R F' R U2 R'","11|r U R' U R' F R F' R U2 r'","12|M' R' U' R U' R' U2 R U' M",
+"13|F U R U' R2 F' R U R U' R'","14|R' F R U R' F' R F U' F'","15|l' U' l L' U' L U l' U l","16|r U r' R U R U' R' U r U' r'",
+"17|R U R' U R' F R F' U2 R' F R F'","18|r U R' U R U2 r2 U' R U' R' U2 r","19|r' R U R U R' U' M' R' F R F'","20|r U R' U' M2 U R U' R' U' M'",
+"21|R U2 R' U' R U R' U' R U' R'","22|R U2 R2 U' R2 U' R2 U2 R","23|R2 D' R U2 R' D R U2 R","24|r U R' U' r' F R F'",
+"25|R' F R U R' U' F' U R","26|R U2 R' U' R U' R'","27|R U R' U R U2 R'","28|r U R' U' r' R U R U' R'",
+"29|R U R' U' R U' R' F' U' F R U R'","30|F R' F R2 U' R' U' R U R' F2","31|R' U' F U R U' R' F' R","32|L U F' U' L' U L F L'",
+"33|R U R' U' R' F R F'","34|R U R2 U' R' F R U R U2 R'","35|R U2 R2 F R F' R U2 R'","36|R' U' R U' R' U R U R B' R' B",
+"37|F R' F' R U R U' R'","38|R U R' U R U' R' U' R' F R F'","39|L F' L' U' L U F U' L'","40|R' F R U R' U' F' U R",
+"41|R U R' U R U2 R' F R U R' U' F'","42|R' U' R U' R' U2 R F R U R' U' F'","43|R' U' F' U F R","44|F U R U' R' F'",
+"45|F R U R' U' F'","46|R' U' R' F R F' U R","47|R' U' R' F R F' R' F R F' U R","48|F R U R' U' R U R' U' F'",
+"49|r U' r2 U r2 U r2 U' r","50|r' U r2 U' r2 U' r2 U r'","51|F U R U' R' U R U' R' F'","52|R U R' U R d' R U' R' F'",
+"53|r' U' R U' R' U R U' R' U2 r","54|r U R' U R U' R' U R U2 r'","55|R U2 R2 U' R U' R' U2 F R F'","56|r U r' U R U' R' U R U' R' r U' r'",
+"57|R U R' U' M' U R U' r'"]},
+"PLL (21)":{"PLL completo":[
+"Aa|x R' U R' D2 R U' R' D2 R2","Ab|x R2 D2 R U R' D2 R U' R","E|x' R U' R' D R U R' D' R U R' D R U' R' D'",
+"F|R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R","Ga|R2 U R' U R' U' R U' R2 U' D R' U R D'","Gb|R' U' R U D' R2 U R' U R U' R U' R2 D",
+"Gc|R2 U' R U' R U R' U R2 D' U R U' R' D","Gd|R U R' U' D R2 U' R U' R' U R' U R2 D'","H|M2 U M2 U2 M2 U M2",
+"Ja|x R2 F R F' R U2 r' U r U2","Jb|R U R' F' R U R' U' R' F R2 U' R'","Na|R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'",
+"Nb|R' U R U' R' F' U' F R U R' F R' F' R U' R","Ra|R U' R' U' R U R D R' U' R D' R' U2 R'","Rb|R' U2 R U2 R' F R U R' U' R' F' R2",
+"T|R U R' U' R' F R2 U' R' U' R U R' F'","Ua|R U' R U R U R U' R' U' R2","Ub|R2 U R U R' U' R' U' R' U R'",
+"V|R' U R' U' y R' F' R2 U' R' U R' F R F","Y|F R U' R' U' R U R' F' R U R' U' R' F R F'","Z|M' U M2 U M2 U M' U2 M2"]}
+};
+const grp=Object.keys(D);let cur=grp[0];
+function drawSub(){$("#sub").innerHTML=grp.map(g=>`<button class="${g===cur?"on":""}" data-g="${g}">${g}</button>`).join("")}
+function drawAlg(){const q=$("#q").value.toLowerCase();let h="";
+for(const [sec,list] of Object.entries(D[cur])){const it=list.map(x=>x.split("|")).filter(([n,a])=>!q||(n+" "+a+" "+sec).toLowerCase().includes(q));
+if(!it.length)continue;h+=`<h3>${sec}</h3><div class="grid">`+it.map(([n,a])=>`<div class="alg" data-a="${a}">${dia(a,sec)}<div class="in"><h4>${sec.includes("F2L")?"F2L ":sec.includes("OLL")&&!sec.includes("2-Look")?"OLL ":sec.includes("PLL")&&!sec.includes("2-Look")?"PLL ":""}${n}</h4><code>${a}</code><small>${len(a)} movimientos</small></div></div>`).join("")+"</div>"}
+$("#al").innerHTML=h||"<p>Sin resultados.</p>"}
+$("#sub").onclick=e=>{const b=e.target.closest("button");if(b){cur=b.dataset.g;drawSub();drawAlg()}};
+$("#q").oninput=drawAlg;
+$("#al").onclick=e=>{const c=e.target.closest(".alg");if(!c)return;try{navigator.clipboard.writeText(c.dataset.a);const s=document.createElement("small");s.textContent="Copiado ✓";c.appendChild(s);setTimeout(()=>s.remove(),1200)}catch(_){}};
+// ---------- Tabs / tema ----------
+function tab(n){$("#p1").classList.toggle("hide",n!==1);$("#p2").classList.toggle("hide",n!==2);$("#t1").classList.toggle("on",n===1);$("#t2").classList.toggle("on",n===2)}
+$("#t1").onclick=()=>tab(1);$("#t2").onclick=()=>tab(2);
+$("#th").onclick=()=>{const r=document.documentElement,d=matchMedia("(prefers-color-scheme: dark)").matches,c=r.dataset.theme||(d?"dark":"light");r.dataset.theme=c==="dark"?"light":"dark"};
+const C={U:"#facc15",D:"#f8fafc",F:"#22c55e",B:"#3b82f6",R:"#ef4444",L:"#f97316"};
+const MV={R:[0,-1,p=>p[0]==1],L:[0,1,p=>p[0]==-1],U:[1,-1,p=>p[1]==1],D:[1,1,p=>p[1]==-1],F:[2,-1,p=>p[2]==1],B:[2,1,p=>p[2]==-1],M:[0,1,p=>p[0]==0],E:[1,1,p=>p[1]==0],S:[2,-1,p=>p[2]==0],r:[0,-1,p=>p[0]>=0],l:[0,1,p=>p[0]<=0],u:[1,-1,p=>p[1]>=0],d:[1,1,p=>p[1]<=0],f:[2,-1,p=>p[2]>=0],b:[2,1,p=>p[2]<=0],x:[0,-1,()=>1],y:[1,-1,()=>1],z:[2,-1,()=>1]};
+const rot=(v,a,s)=>a==0?[v[0],-v[2]*s,v[1]*s]:a==1?[v[2]*s,v[1],-v[0]*s]:[-v[1]*s,v[0]*s,v[2]];
+function solved(){const o=[];for(let x=-1;x<2;x++)for(let y=-1;y<2;y++)for(let z=-1;z<2;z++)[[x==1,[1,0,0],"R"],[x==-1,[-1,0,0],"L"],[y==1,[0,1,0],"U"],[y==-1,[0,-1,0],"D"],[z==1,[0,0,1],"F"],[z==-1,[0,0,-1],"B"]].forEach(([k,n,c])=>k&&o.push({p:[x,y,z],n,c}));return o}
+function apply(cube,alg){alg.trim().split(/\s+/).forEach(t=>{const m=MV[t[0]];if(!m)return;const k=t[1]=="2"?2:1,s=t[1]=="'"?-m[1]:m[1];for(let i=0;i<k;i++)cube.forEach(q=>{if(m[2](q.p)){q.p=rot(q.p,m[0],s);q.n=rot(q.n,m[0],s)}})});return cube}
+const inv=a=>a.trim().split(/\s+/).reverse().map(t=>t.endsWith("'")?t[0]:t.endsWith("2")?t:t+"'").join(" ");
+const len=a=>a.trim().split(/\s+/).filter(t=>!/^[xyz]/.test(t)).length;
+function orient(q){for(const a of ["","x","x2","x'","z","z'"])for(const b of ["","y","y2","y'"]){const c=apply(q.map(t=>({...t})),a+" "+b);const ce=t=>t.p.filter(v=>!v).length==2,u=c.find(t=>t.c=="U"&&ce(t)),f=c.find(t=>t.c=="F"&&ce(t));if(u&&f&&u.n[1]==1&&f.n[2]==1)return c}return q}
+const NF={"0,1,0":[3,0,t=>[t.p[0]+1,t.p[2]+1]],"0,0,1":[3,3,t=>[t.p[0]+1,1-t.p[1]]],"1,0,0":[6,3,t=>[1-t.p[2],1-t.p[1]]],"0,0,-1":[9,3,t=>[1-t.p[0],1-t.p[1]]],"-1,0,0":[0,3,t=>[t.p[2]+1,1-t.p[1]]],"0,-1,0":[3,6,t=>[t.p[0]+1,1-t.p[2]]]};
+function net(q){let h='<svg viewBox="0 0 84 63">';q.forEach(t=>{const [ox,oy,f]=NF[t.n.join(",")],[c,r]=f(t);h+=`<rect x="${(ox+c)*7+.4}" y="${(oy+r)*7+.4}" width="6.2" height="6.2" rx="1" fill="${C[t.c]}" stroke="#0006" stroke-width=".4"/>`});return h+"</svg>"}
+function dia(a,sec){let q=apply(solved(),inv(a)),h="";const st='stroke="#111" stroke-width=".8"';
+if(sec.includes("F2L")){h='<svg viewBox="0 0 100 112">';q.forEach(t=>{const n=t.n;if(n[0]+n[1]+n[2]<1)return;const ax=[0,1,2].filter(k=>!n[k]),pts=[[1,1],[1,-1],[-1,-1],[-1,1]].map(([i,j])=>{const v=t.p.map((c,k)=>c+.5*n[k]+.45*(k==ax[0]?i:0)+.45*(k==ax[1]?j:0));return((v[0]-v[2])*.866*18+50).toFixed(1)+","+((-v[1]+(v[0]+v[2])*.5)*18+56).toFixed(1)}).join(" ");h+=`<polygon points="${pts}" fill="${C[t.c]}" ${st}/>`});return h+"</svg>"}
+q=orient(q);const S=16,ol=sec.includes("OLL");h='<svg viewBox="0 0 74 74">';
+q.forEach(t=>{const [x,y,z]=t.p,[nx,ny,nz]=t.n,fill=ol?(t.c=="U"?C.U:"#6b7280"):C[t.c];let R=null;
+if(ny==1)R=[(x+1)*S+10,(z+1)*S+10,S-2,S-2];else if(y==1){if(nz==1)R=[(x+1)*S+10,3*S+12,S-2,5];else if(nz==-1)R=[(x+1)*S+10,3,S-2,5];else if(nx==1)R=[3*S+12,(z+1)*S+10,5,S-2];else if(nx==-1)R=[3,(z+1)*S+10,5,S-2]}
+if(R)h+=`<rect x="${R[0]}" y="${R[1]}" width="${R[2]}" height="${R[3]}" rx="2" fill="${fill}" ${st}/>`});return h+"</svg>"}
+function graph(){const v=solves.slice(-40).map(val).filter(x=>x!==Infinity);if(v.length<2){$("#gr").innerHTML="<small style='color:var(--mu)'>Gráfica de progreso: resuelve al menos 2 veces</small>";return}
+const mn=Math.min(...v),mx=Math.max(...v),pts=v.map((x,i)=>(i/(v.length-1)*300).toFixed(1)+","+(55-(x-mn)/(mx-mn||1)*50).toFixed(1)).join(" ");
+$("#gr").innerHTML=`<svg viewBox="0 0 300 60" preserveAspectRatio="none" style="width:100%;height:80px"><polyline points="${pts}" fill="none" stroke="var(--ac)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`}
+$("#rnd").onclick=()=>{const all=Object.entries(D[cur]).flatMap(([s,l])=>l.map(x=>[s,...x.split("|")]));const [s,n,a]=all[Math.random()*all.length|0];
+$("#tr").innerHTML=`<div class="box tr">${dia(a,s)}<div><b>Entrenamiento: ${s} ${n}</b><br><small>Aplica este setup a un cubo resuelto:</small><br><code>${inv(a)}</code><br><br><button onclick="this.nextElementSibling.hidden=false;this.hidden=true">Ver solución</button><code hidden>${a}</code></div></div>`};
+newSc();render();drawSub();drawAlg();
+</script></body></html>

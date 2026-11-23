@@ -2,6 +2,8 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KoldTimer - Cronómetra tus resoluciones!</title>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--tx:#1b1d22;--mu:#6b7280;--ac:#2563eb;--bd:#d9dce2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--card:#1e2128;--tx:#eceef2;--mu:#9aa1ae;--ac:#5b8def;--bd:#323743;color-scheme:dark}}
@@ -110,6 +112,47 @@ tr:hover td{background:#ffffff08}
 input[type=search]{background:#ffffff10;border:1px solid var(--bd);color:var(--tx)}
 input[type=search]::placeholder{color:var(--mu)}
 .alg h4{color:#fff}
+
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.footer-content p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.instagram-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #e8a0c5;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.instagram-link:hover {
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+.instagram-link i {
+    font-size: 22px;
+}
+
+.footer-copy {
+    margin-top: 8px;
+    color: #999999;
+    font-size: 12px;
+}
 </style></head><body>
 <header>
 <b class="brand">🧊 KoldTimer</b><button id="t1" class="on">⏱ Cronómetro</button><button id="t2">📚 Algoritmos</button>
@@ -124,6 +167,23 @@ input[type=search]::placeholder{color:var(--mu)}
 <div class="stats" id="st"></div><div class="box" id="gr"></div>
 <div class="box tl"><table id="tb"></table></div>
 <p><button id="rs">Borrar sesión</button></p>
+<footer class="footer">
+    <div class="footer-content">
+        <p>Sígueme en Instagram!</p>
+
+        <a href="https://www.instagram.com/ko1ddd/"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="instagram-link">
+            <i class="fa-brands fa-instagram"></i>
+            @ko1ddd
+        </a>
+
+        <span class="footer-copy">
+            © 2026 Todos los derechos reservados.
+        </span>
+    </div>
+</footer>
 </section>
 <section id="p2" class="hide">
 <div class="sub" id="sub"></div>
